@@ -66,21 +66,25 @@ func isValidDate(cnp string) bool {
 }
 
 // isValidCounty checks if the CNP encodes a valid Romanian county code (JJ).
-// For JJ == "47" or "48" (historic Bucharest districts), validity is restricted to dates before 1979-12-19.
+// For JJ == "47" or "48" (historic Bucharest districts), validity is restricted
+// to dates before December 19, 1979. For JJ == "70", accepts any S for birth year
+// 2024 and later (SIIEASC CNPs), and only S=7,8,9 for prior years (legacy CNPs).
+// Other codes are validated according to the official list.
 func isValidCounty(cnp string) bool {
 	county := cnp[7:9]
 	s := cnp[0]
 	switch county {
 	case "47", "48":
-		// Historic districts: only allowed before 1979-12-19
 		yyyy, mm, dd := cnpBirthDate(cnp)
-		if yyyy == 0 { // Invalid date (should be caught elsewhere, but sanity check)
-			return false
-		}
 		boundary := time.Date(1979, 12, 19, 0, 0, 0, 0, time.UTC)
 		cnpDate := time.Date(yyyy, time.Month(mm), dd, 0, 0, 0, 0, time.UTC)
 		return cnpDate.Before(boundary)
 	case "70":
+		yyyy, _, _ := cnpBirthDate(cnp)
+		if yyyy >= 2024 {
+			return true // After 2024: Accept for any S
+		}
+		// Before 2024: Only for S=7,8,9
 		return s == '7' || s == '8' || s == '9'
 	default:
 		valid := map[string]bool{

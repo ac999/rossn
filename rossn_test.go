@@ -233,18 +233,69 @@ func TestValidate_SpecialCounty70(t *testing.T) {
 			t.Errorf("CNP with S=%s and county=70 should be valid: %s", s, cnp)
 		}
 	}
-	// S=1–6 with county 70 should be invalid
-	for _, s := range []string{"1", "2", "3", "4", "5", "6"} {
-		cnp := buildCNP(s, "90", "06", "15", "70", "111")
+	// S=1–4 with county 70 and any year are always invalid
+	for _, s := range []string{"1", "2", "3", "4"} {
+		cnp := buildCNP(s, "90", "06", "15", "70", "111") // year=1990/1890
 		if err := Validate(cnp); err == nil {
 			t.Errorf("CNP with S=%s and county=70 should be invalid: %s", s, cnp)
 		}
 	}
+	// S=5,6 with county 70 and year<2024 should be invalid
+	for _, s := range []string{"5", "6"} {
+		cnp := buildCNP(s, "01", "06", "15", "70", "111") // year=2001
+		if err := Validate(cnp); err == nil {
+			t.Errorf("CNP with S=%s and county=70 and year<2024 should be invalid: %s", s, cnp)
+		}
+	}
+	// S=5,6 with county 70 and year>=2024 should be valid
+	for _, s := range []string{"5", "6"} {
+		cnp := buildCNP(s, "24", "06", "15", "70", "111") // year=2024
+		if err := Validate(cnp); err != nil {
+			t.Errorf("CNP with S=%s and county=70 and year>=2024 should be valid: %s", s, cnp)
+		}
+	}
+
 	// S=7,8,9 with county 71 should be invalid
 	for _, s := range []string{"7", "8", "9"} {
 		cnp := buildCNP(s, "90", "06", "15", "71", "111")
 		if err := Validate(cnp); err == nil {
 			t.Errorf("CNP with S=%s and county=71 should be invalid: %s", s, cnp)
+		}
+	}
+}
+
+func TestValidate_JJ70_PrePost2024(t *testing.T) {
+	// Before 2024: JJ=70 is valid only for S=7,8,9
+	for _, s := range []string{"7", "8", "9"} {
+		cnp := buildCNP(s, "90", "06", "15", "70", "111") // 1990
+		if err := Validate(cnp); err != nil {
+			t.Errorf("CNP with JJ=70 and S=%s before 2024 should be valid: %s", s, cnp)
+		}
+	}
+	for _, s := range []string{"1", "2", "3", "4"} {
+		cnp := buildCNP(s, "90", "06", "15", "70", "111") // S=1-4, year=1990/1890, JJ=70 (should be invalid)
+		if err := Validate(cnp); err == nil {
+			t.Errorf("CNP with S=%s and county=70 should be invalid: %s", s, cnp)
+		}
+	}
+	for _, s := range []string{"5", "6"} {
+		// Test with year<2024 (should be invalid)
+		cnp := buildCNP(s, "01", "06", "15", "70", "111") // S=5/6, year=2001, JJ=70
+		if err := Validate(cnp); err == nil {
+			t.Errorf("CNP with S=%s and county=70 and year<2024 should be invalid: %s", s, cnp)
+		}
+		// Test with year>=2024 (should be valid)
+		cnp = buildCNP(s, "24", "06", "15", "70", "111") // S=5/6, year=2024, JJ=70
+		if err := Validate(cnp); err != nil {
+			t.Errorf("CNP with S=%s and county=70 and year>=2024 should be valid: %s", s, cnp)
+		}
+	}
+
+	// 2024 and after: JJ=70 is valid for any S that actually encodes 2024 (S=5,6)
+	for _, s := range []string{"5", "6"} {
+		cnp := buildCNP(s, "24", "01", "15", "70", "111") // 2024
+		if err := Validate(cnp); err != nil {
+			t.Errorf("CNP with JJ=70 and S=%s from 2024 should be valid: %s", s, cnp)
 		}
 	}
 }
