@@ -224,3 +224,27 @@ func TestValidate_ArchivalBucharestDistricts(t *testing.T) {
 		t.Errorf("Historic CNP with JJ=48 at/after cutoff should fail: %s", cnpInvalid48)
 	}
 }
+
+func TestValidate_SpecialCounty70(t *testing.T) {
+	// S=7,8,9 with county 70 should be valid
+	for _, s := range []string{"7", "8", "9"} {
+		cnp := buildCNP(s, "90", "06", "15", "70", "111")
+		if err := Validate(cnp); err != nil {
+			t.Errorf("CNP with S=%s and county=70 should be valid: %s", s, cnp)
+		}
+	}
+	// S=1–6 with county 70 should be invalid
+	for _, s := range []string{"1", "2", "3", "4", "5", "6"} {
+		cnp := buildCNP(s, "90", "06", "15", "70", "111")
+		if err := Validate(cnp); err == nil {
+			t.Errorf("CNP with S=%s and county=70 should be invalid: %s", s, cnp)
+		}
+	}
+	// S=7,8,9 with county 71 should be invalid
+	for _, s := range []string{"7", "8", "9"} {
+		cnp := buildCNP(s, "90", "06", "15", "71", "111")
+		if err := Validate(cnp); err == nil {
+			t.Errorf("CNP with S=%s and county=71 should be invalid: %s", s, cnp)
+		}
+	}
+}

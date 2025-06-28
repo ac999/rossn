@@ -12,7 +12,8 @@ Thoroughly tested against all official rules and edge cases.
 ## Features
 
 - Validates CNP length, digits, date, county, serial (001–999), and checksum
-- Supports full archival validation: recognizes historic Bucharest districts 7 and 8 (codes 47 and 48) for dates before December 19, 1979, as specified in [cnp-spec](https://github.com/vimishor/cnp-spec)
+- Full support for archival Bucharest codes 47/48 (historical), and for code 70 for foreign/stateless residents (S=7,8,9 only), as per [cnp-spec](https://github.com/vimishor/cnp-spec) and [Wikipedia](https://ro.wikipedia.org/wiki/Cod_numeric_personal).
+
 - 100% Go, no dependencies
 - MIT licensed: Free for commercial and closed-source use
 - Fast, robust, and tested
@@ -85,3 +86,4 @@ MIT License — see [LICENSE](LICENSE)
 ## References
 
 - [Personal Identification Number Specification (cnp-spec)](https://github.com/vimishor/cnp-spec)
+- [Wikipedia - Cod numeric personal](https://ro.wikipedia.org/wiki/Cod_numeric_personal

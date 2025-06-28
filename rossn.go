@@ -69,6 +69,7 @@ func isValidDate(cnp string) bool {
 // For JJ == "47" or "48" (historic Bucharest districts), validity is restricted to dates before 1979-12-19.
 func isValidCounty(cnp string) bool {
 	county := cnp[7:9]
+	s := cnp[0]
 	switch county {
 	case "47", "48":
 		// Historic districts: only allowed before 1979-12-19
@@ -79,6 +80,8 @@ func isValidCounty(cnp string) bool {
 		boundary := time.Date(1979, 12, 19, 0, 0, 0, 0, time.UTC)
 		cnpDate := time.Date(yyyy, time.Month(mm), dd, 0, 0, 0, 0, time.UTC)
 		return cnpDate.Before(boundary)
+	case "70":
+		return s == '7' || s == '8' || s == '9'
 	default:
 		valid := map[string]bool{
 			"01": true, "02": true, "03": true, "04": true, "05": true, "06": true,
