@@ -66,19 +66,58 @@ func isValidDate(cnp string) bool {
 }
 
 // isValidCounty checks if the CNP encodes a valid Romanian county code (JJ).
+// For JJ == "47" or "48" (historic Bucharest districts), validity is restricted to dates before 1979-12-19.
 func isValidCounty(cnp string) bool {
 	county := cnp[7:9]
-	valid := map[string]bool{
-		"01": true, "02": true, "03": true, "04": true, "05": true, "06": true,
-		"07": true, "08": true, "09": true, "10": true, "11": true, "12": true,
-		"13": true, "14": true, "15": true, "16": true, "17": true, "18": true,
-		"19": true, "20": true, "21": true, "22": true, "23": true, "24": true,
-		"25": true, "26": true, "27": true, "28": true, "29": true, "30": true,
-		"31": true, "32": true, "33": true, "34": true, "35": true, "36": true,
-		"37": true, "38": true, "39": true, "40": true, "41": true, "42": true,
-		"43": true, "44": true, "45": true, "46": true, "51": true, "52": true,
+	switch county {
+	case "47", "48":
+		// Historic districts: only allowed before 1979-12-19
+		yyyy, mm, dd := cnpBirthDate(cnp)
+		if yyyy == 0 { // Invalid date (should be caught elsewhere, but sanity check)
+			return false
+		}
+		boundary := time.Date(1979, 12, 19, 0, 0, 0, 0, time.UTC)
+		cnpDate := time.Date(yyyy, time.Month(mm), dd, 0, 0, 0, 0, time.UTC)
+		return cnpDate.Before(boundary)
+	default:
+		valid := map[string]bool{
+			"01": true, "02": true, "03": true, "04": true, "05": true, "06": true,
+			"07": true, "08": true, "09": true, "10": true, "11": true, "12": true,
+			"13": true, "14": true, "15": true, "16": true, "17": true, "18": true,
+			"19": true, "20": true, "21": true, "22": true, "23": true, "24": true,
+			"25": true, "26": true, "27": true, "28": true, "29": true, "30": true,
+			"31": true, "32": true, "33": true, "34": true, "35": true, "36": true,
+			"37": true, "38": true, "39": true, "40": true, "41": true, "42": true,
+			"43": true, "44": true, "45": true, "46": true, "51": true, "52": true,
+		}
+		return valid[county]
 	}
-	return valid[county]
+}
+
+// cnpBirthDate extracts the birth date (YYYY, MM, DD) from a CNP.
+// Returns (0,0,0) if the date cannot be determined (should not happen after isValidDate passes).
+func cnpBirthDate(cnp string) (year int, month int, day int) {
+	s := cnp[0]
+	yy := cnp[1:3]
+	mm := cnp[3:5]
+	dd := cnp[5:7]
+	var century string
+	switch s {
+	case '1', '2':
+		century = "19"
+	case '3', '4':
+		century = "18"
+	case '5', '6':
+		century = "20"
+	case '7', '8', '9':
+		century = "19"
+	default:
+		return 0, 0, 0
+	}
+	y, _ := strconv.Atoi(century + yy)
+	m, _ := strconv.Atoi(mm)
+	d, _ := strconv.Atoi(dd)
+	return y, m, d
 }
 
 // isValidSerial checks if the NNN serial part of the CNP is in the official range 001–999.

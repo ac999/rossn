@@ -194,3 +194,33 @@ func TestValidate_ControlDigit10(t *testing.T) {
 		t.Errorf("CNP with control digit 1 (checksum==10) should be valid: %s", cnp)
 	}
 }
+
+func TestValidate_ArchivalBucharestDistricts(t *testing.T) {
+	// Valid: code 47, date before 1979-12-19
+	cnpValid47 := buildCNP("1", "79", "12", "18", "47", "123") // 1979-12-18
+	if err := Validate(cnpValid47); err != nil {
+		t.Errorf("Historic CNP with JJ=47 before cutoff should pass: %s, err=%v", cnpValid47, err)
+	}
+
+	// Valid: code 48, date before 1979-12-19
+	cnpValid48 := buildCNP("2", "78", "05", "10", "48", "555") // 1978-05-10
+	if err := Validate(cnpValid48); err != nil {
+		t.Errorf("Historic CNP with JJ=48 before cutoff should pass: %s, err=%v", cnpValid48, err)
+	}
+
+	// Invalid: code 47, date at or after 1979-12-19
+	cnpInvalid47 := buildCNP("1", "79", "12", "19", "47", "123") // 1979-12-19
+	if err := Validate(cnpInvalid47); err == nil {
+		t.Errorf("Historic CNP with JJ=47 at/after cutoff should fail: %s", cnpInvalid47)
+	}
+	cnpInvalid47b := buildCNP("1", "80", "01", "01", "47", "123") // 1980-01-01
+	if err := Validate(cnpInvalid47b); err == nil {
+		t.Errorf("Historic CNP with JJ=47 after cutoff should fail: %s", cnpInvalid47b)
+	}
+
+	// Invalid: code 48, date at or after 1979-12-19
+	cnpInvalid48 := buildCNP("2", "79", "12", "19", "48", "123") // 1979-12-19
+	if err := Validate(cnpInvalid48); err == nil {
+		t.Errorf("Historic CNP with JJ=48 at/after cutoff should fail: %s", cnpInvalid48)
+	}
+}
