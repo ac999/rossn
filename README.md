@@ -86,5 +86,5 @@ MIT License — see [LICENSE](LICENSE)
 ## References
 
 - [Personal Identification Number Specification (cnp-spec)](https://github.com/vimishor/cnp-spec)
-- [Wikipedia - Cod numeric personal](https://ro.wikipedia.org/wiki/Cod_numeric_personal
+- [Wikipedia - Cod numeric personal](https://ro.wikipedia.org/wiki/Cod_numeric_personal)
 - [Precizări în ceea ce privește generarea codului numeric personal (mai 2024, MAI)](https://www.mai.gov.ro/precizari-in-ceea-ce-priveste-generarea-codului-numeric-personal/)
